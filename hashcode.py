@@ -54,14 +54,23 @@ class Parser(object):
 
         simulation.rides = sorted(simulation.rides, key=lambda ride: ride.distance_from_start)
 
-        vehicle_index = 0
-        for ride in simulation.rides:
-            if sum(obj.distance for obj in simulation.vehicles[vehicle_index]) >= simulation.total_steps:
-                vehicle_index += 1
-            if vehicle_index >= len(simulation.vehicles):
-                break
-            simulation.vehicles[vehicle_index].append(ride)
-
+        # vehicle_index = 0
+        # for ride in simulation.rides:
+        #     if sum(obj.distance for obj in simulation.vehicles[vehicle_index]) >= simulation.total_steps:
+        #         vehicle_index += 1
+        #     if vehicle_index >= len(simulation.vehicles):
+        #         break
+        #     simulation.vehicles[vehicle_index].append(ride)
+        #
+        ride_index = 0
+        while ride_index < len(simulation.rides):
+            for vehicle in simulation.vehicles:
+                if ride_index >= len(simulation.rides):
+                    break
+                if sum(obj.distance for obj in vehicle) >= simulation.total_steps:
+                    continue
+                vehicle.append(simulation.rides[ride_index])
+                ride_index += 1
 
 
     @staticmethod
