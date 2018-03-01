@@ -105,6 +105,8 @@ class Parser(object):
         for vehicle in simulation.vehicles:
             ride_index_2 = 0
             while vehicle.remaining > 0:
+                if len(tmp_rides) == 0 or ride_index_2 >= len(tmp_rides):
+                    break
                 current_ride = sorted(tmp_rides, key=lambda ride: (Parser.distance_from_to(vehicle.pos, ride.start), ride.start_time))[ride_index_2]
 
                 ride_price = Parser.distance_from_to(vehicle.pos, current_ride.start) + current_ride.distance
@@ -119,6 +121,8 @@ class Parser(object):
                 if vehicle.remaining >= simulation.total_steps:
                     continue
                 tmp_rides.pop(0)
+            if len(tmp_rides) == 0 or ride_index_2 >= len(tmp_rides):
+                break
 
     @staticmethod
     def output(filename):
