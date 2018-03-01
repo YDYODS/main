@@ -11,7 +11,7 @@ class Simulation(object):
         self.bonus = bonus
         self.total_steps = total_steps
         self.rides = []
-        self.vehicles = [[] for x in range(self.total_cars)]
+        self.vehicles = [Vehicle(total_steps) for x in range(self.total_cars)]
 
     def add_ride(self, ride):
         self.rides.append(ride)
@@ -33,6 +33,17 @@ class Ride(object):
 
     def __repr__(self):
         return "start: {}, end: {}".format(self.start, self.end)
+
+
+class Vehicle(object):
+
+    def __init__(self, total_steps) -> None:
+        self.remaining = total_steps
+        self.pos = [0, 0]
+        self.rides = []
+
+    def move(self, target_pos):
+        self.remaining -= abs(self.pos[0] - target_pos[0]) + abs(self.pos[1] - target_pos[1])
 
 
 class Parser(object):
@@ -67,9 +78,12 @@ class Parser(object):
             for vehicle in simulation.vehicles:
                 if ride_index >= len(simulation.rides):
                     break
-                if sum(obj.distance for obj in vehicle) >= simulation.total_steps:
+                if vehicle.pos != simulation.rides[ride_index].start:
+                    vehicle.move(simulation.rides[ride_index].start)
+                vehicle.rides.append(simulation.rides[ride_index])
+                vehicle.move(simulation.rides[ride_index].end)
+                if vehicle.remaining >= simulation.total_steps:
                     continue
-                vehicle.append(simulation.rides[ride_index])
                 ride_index += 1
 
 
@@ -78,8 +92,8 @@ class Parser(object):
         global simulation
         output = open(filename, 'w')
 
-        for vehicle in simulation.vehicles:
-            out = '{} {}\n'.format(len(vehicle), ' '.join([str(obj.id) for obj in vehicle]))
+        for idx, vehicle in enumerate(simulation.vehicles):
+            out = '{} {}\n'.format(len(vehicle.rides), ' '.join([str(obj.id) for obj in vehicle.rides]))
             output.write(out)
 
         output.close()
