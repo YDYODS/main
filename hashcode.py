@@ -85,7 +85,9 @@ class Parser(object):
                 if ride_index >= len(simulation.rides):
                     break
                 current_ride = simulation.rides[ride_index]
-                if vehicle.remaining < Parser.distance_from_to(vehicle.pos, current_ride.start) + current_ride.distance:
+
+                ride_price = Parser.distance_from_to(vehicle.pos, current_ride.start) + current_ride.distance
+                if vehicle.remaining < ride_price:
                     continue
                 if vehicle.pos != current_ride.start:
                     vehicle.move(current_ride.start)
