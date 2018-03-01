@@ -49,6 +49,10 @@ class Vehicle(object):
 
 class Parser(object):
     @staticmethod
+    def distance_from_to(from_data, to_data):
+        return abs(from_data[0] - to_data[0]) + abs(from_data[1] - to_data[1])
+
+    @staticmethod
     def parse(filename):
         global simulation
 
@@ -76,17 +80,22 @@ class Parser(object):
         #
         ride_index = 0
         while ride_index < len(simulation.rides):
+            should_be_done = ride_index
             for vehicle in simulation.vehicles:
                 if ride_index >= len(simulation.rides):
                     break
-                if vehicle.pos != simulation.rides[ride_index].start:
-                    vehicle.move(simulation.rides[ride_index].start)
-                vehicle.rides.append(simulation.rides[ride_index])
-                vehicle.move(simulation.rides[ride_index].end)
+                current_ride = simulation.rides[ride_index]
+                if vehicle.remaining < Parser.distance_from_to(vehicle.pos, current_ride.start) + current_ride.distance:
+                    continue
+                if vehicle.pos != current_ride.start:
+                    vehicle.move(current_ride.start)
+                vehicle.rides.append(current_ride)
+                vehicle.move(current_ride.end)
                 if vehicle.remaining >= simulation.total_steps:
                     continue
                 ride_index += 1
-
+            if ride_index == should_be_done:
+                ride_index += 1
 
     @staticmethod
     def output(filename):
