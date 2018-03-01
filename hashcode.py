@@ -68,7 +68,7 @@ class Parser(object):
             if max(ride.distance_from_start, ride.start_time) + ride.distance < simulation.total_steps:
                 simulation.add_ride(ride)
 
-        simulation.rides = sorted(simulation.rides, key=lambda ride: ride.start_time)
+        simulation.rides = sorted(simulation.rides, key=lambda ride: (ride.start_time, ride.distance))
 
         # vehicle_index = 0
         # for ride in simulation.rides:
@@ -78,20 +78,39 @@ class Parser(object):
         #         break
         #     simulation.vehicles[vehicle_index].append(ride)
         #
-        ride_index = 0
-        while ride_index < len(simulation.rides):
-            should_be_done = ride_index
-            for vehicle in simulation.vehicles:
-                if ride_index >= len(simulation.rides):
-                    break
-                current_ride = simulation.rides[ride_index]
+        # ride_index = 0
+        # while ride_index < len(simulation.rides):
+        #     should_be_done = ride_index
+        #     for vehicle in simulation.vehicles:
+        #         simulation.rides = sorted(simulation.rides, key=lambda ride: (ride.start_time, Parser.distance_from_to(vehicle.pos, ride.start)))
+        #         if ride_index >= len(simulation.rides):
+        #             break
+        #         current_ride = simulation.rides[ride_index]
+        #
+        #         ride_price = Parser.distance_from_to(vehicle.pos, current_ride.start) + current_ride.distance
+        #         step = simulation.total_steps - vehicle.remaining
+        #         if vehicle.remaining <= ride_price or current_ride.start_time <= step + Parser.distance_from_to(vehicle.pos, current_ride.start) or current_ride.end_time <= ride_price + step:
+        #             continue
+        #         if vehicle.pos != current_ride.start:
+        #             vehicle.move(current_ride.start)
+        #         vehicle.rides.append(current_ride)
+        #         vehicle.move(current_ride.end)
+        #         if vehicle.remaining >= simulation.total_steps:
+        #             continue
+        #         ride_index += 1
+        #     if ride_index == should_be_done:
+        #         ride_index += 1
+
+        tmp_rides = simulation.rides
+        for vehicle in simulation.vehicles:
+            ride_index_2 = 0
+            while vehicle.remaining > 0:
+                current_ride = sorted(tmp_rides, key=lambda ride: (Parser.distance_from_to(vehicle.pos, ride.start), ride.start_time))[ride_index_2]
 
                 ride_price = Parser.distance_from_to(vehicle.pos, current_ride.start) + current_ride.distance
-                ride_time = current_ride.end_time - current_ride.start_time
-                # if ride_time > ride_price:
-                #     ride_index += 1
-                #     continue
-                if vehicle.remaining < ride_price or vehicle.remaining < ride_time + Parser.distance_from_to(vehicle.pos, current_ride.start):
+                step = simulation.total_steps - vehicle.remaining
+                if vehicle.remaining <= ride_price or current_ride.start_time <= step + Parser.distance_from_to(vehicle.pos, current_ride.start) or current_ride.end_time <= ride_price + step:
+                    ride_index_2 += 1
                     continue
                 if vehicle.pos != current_ride.start:
                     vehicle.move(current_ride.start)
@@ -99,9 +118,7 @@ class Parser(object):
                 vehicle.move(current_ride.end)
                 if vehicle.remaining >= simulation.total_steps:
                     continue
-                ride_index += 1
-            if ride_index == should_be_done:
-                ride_index += 1
+                tmp_rides.pop(0)
 
     @staticmethod
     def output(filename):
