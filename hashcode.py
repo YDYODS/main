@@ -68,7 +68,7 @@ class Parser(object):
             if max(ride.distance_from_start, ride.start_time) + ride.distance < simulation.total_steps:
                 simulation.add_ride(ride)
 
-        simulation.rides = sorted(simulation.rides, key=lambda ride: ride.distance_from_start)
+        simulation.rides = sorted(simulation.rides, key=lambda ride: ride.start_time)
 
         # vehicle_index = 0
         # for ride in simulation.rides:
@@ -87,7 +87,11 @@ class Parser(object):
                 current_ride = simulation.rides[ride_index]
 
                 ride_price = Parser.distance_from_to(vehicle.pos, current_ride.start) + current_ride.distance
-                if vehicle.remaining < ride_price:
+                ride_time = current_ride.end_time - current_ride.start_time
+                # if ride_time > ride_price:
+                #     ride_index += 1
+                #     continue
+                if vehicle.remaining < ride_price or vehicle.remaining < ride_time + Parser.distance_from_to(vehicle.pos, current_ride.start):
                     continue
                 if vehicle.pos != current_ride.start:
                     vehicle.move(current_ride.start)
