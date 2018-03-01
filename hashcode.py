@@ -44,6 +44,7 @@ class Vehicle(object):
 
     def move(self, target_pos):
         self.remaining -= abs(self.pos[0] - target_pos[0]) + abs(self.pos[1] - target_pos[1])
+        self.pos = target_pos
 
 
 class Parser(object):
